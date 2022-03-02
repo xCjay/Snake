@@ -65,6 +65,7 @@ public class Snake extends GraphicsProgram {
     //Begins gameLoop, start of the program
     @Override
     public void run() {
+        genGrid();
         spawnApple();
         Dialog.showMessage("Click ok, then click the window to start");
         waitForClick();
@@ -120,7 +121,15 @@ public class Snake extends GraphicsProgram {
         }
     }
 
+    private void genGrid(){
 
+        for (int i = 0; i < bounding.getHeight()/20; i++) {
+            for (int j = 0; j < bounding.getWidth()/20; j++) {
+                add(new GRect(20, 20), bounding.getX() + j*20, bounding.getY() + i*20);
+
+            }
+        }
+    }
 
 
     /**
