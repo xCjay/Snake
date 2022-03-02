@@ -20,7 +20,7 @@ public class SnakeBody extends GRect {
     public SnakeBody(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
         Color color = new Color(rn.nextInt(255), rn.nextInt(255), rn.nextInt(255));
-        setFillColor(color);
+        setFillColor(Color.red);
         setFilled(true);
     }
 

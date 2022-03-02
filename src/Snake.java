@@ -96,15 +96,18 @@ public class Snake extends GraphicsProgram {
     private void handleCollisions(){
         GObject obj = null;
 
-        if (head.getX() + head.getWidth() == bounding.getX()+ bounding.getWidth()){
+        if (head.getX() >= bounding.getX() + bounding.getWidth()){
             lose();
-        }else if (head.getY() == bounding.getY() + 1){
+        } else if (head.getY() <= bounding.getY()){
+            lose();
+        } else if (head.getX() <= bounding.getX()){
+            lose();
+        } else if (head.getY() >= bounding.getY() + bounding.getHeight()){
             lose();
         }
 
         if(obj == null){
-
-            obj = this.getElementAt(head.getX()+head.getWidth()/2 + moveX, head.getY()+head.getHeight()/2 + moveY);
+            obj = this.getElementAt(head.getX() + head.getWidth()/2, head.getY() + head.getHeight()/2);
         }
 
         if (obj != null){
