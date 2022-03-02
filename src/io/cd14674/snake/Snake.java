@@ -59,7 +59,6 @@ public class Snake extends GraphicsProgram {
     private GLabel scoreLabel;
     private GLabel highLabel;
 
-    private JButton changeMode;
 
 
     //Begins gameLoop, start of the program
@@ -84,11 +83,16 @@ public class Snake extends GraphicsProgram {
         highLabel = new GLabel("Highscore: " + highscore);
         bounding = new GRect(500, 500);
 
+
+        bounding.setFillColor(Color.gray);
+        bounding.setFilled(true);
+
+
         scoreLabel.setFont("Calibri-50");
         highLabel.setFont("Calibri-50");
 
-        add(head, bounding.getX()+ head.getWidth()*2, bounding.getY() + head.getHeight()*3);
         add(bounding, 20, 20);
+        add(head, bounding.getX()+ head.getWidth()*2, bounding.getY() + head.getHeight()*3);
         add(scoreLabel, bounding.getX(), bounding.getY()+bounding.getHeight()+ scoreLabel.getHeight());
         add(highLabel, scoreLabel.getX(), scoreLabel.getY()+ 50);
     }
@@ -122,6 +126,10 @@ public class Snake extends GraphicsProgram {
     }
 
     private void genGrid(){
+
+        int colored = 1;
+        GRect rect = new GRect(20, 20);
+        rect.setFilled(false);
 
         for (int i = 0; i < bounding.getHeight()/20; i++) {
             for (int j = 0; j < bounding.getWidth()/20; j++) {

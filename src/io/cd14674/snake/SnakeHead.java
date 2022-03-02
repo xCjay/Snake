@@ -1,6 +1,8 @@
 import acm.graphics.GCanvas;
 import acm.graphics.GRect;
 
+import java.awt.*;
+
 public class SnakeHead extends GRect {
 
 
@@ -16,6 +18,7 @@ public class SnakeHead extends GRect {
     public SnakeHead(double v, double v1, GCanvas screen) {
         super(v, v1);
         setFilled(true);
+        setFillColor(Color.red);
         this.screen = screen;
     }
 
