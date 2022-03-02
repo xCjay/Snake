@@ -1,3 +1,4 @@
+import acm.graphics.GLabel;
 import acm.graphics.GObject;
 import acm.graphics.GOval;
 import acm.graphics.GRect;
@@ -6,8 +7,11 @@ import acm.util.RandomGenerator;
 
 import svu.csc213.Dialog;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -39,75 +43,133 @@ public class Snake extends GraphicsProgram {
     private int moveX = 20;
     private int moveY = 0;
 
-    private double previousX;
-    private double previousY;
+    double previousX;
+    double previousY;
 
-    public int segment = 5;
+    int previousMoveX;
+    int previousMoveY;
 
-    int time = 0;
+    private int segment = 4;
+    private int time = 0;
+    private int score = 0;
+    private int highscore = 0;
+    private int speed = 150;
 
-    GRect bounding = new GRect(500, 500);
-    private Object GObject;
+    private GRect bounding;
+    private GLabel scoreLabel;
+    private GLabel highLabel;
+
+    private JButton changeMode;
 
 
+    //Begins gameLoop, start of the program
     @Override
     public void run() {
+        spawnApple();
+        Dialog.showMessage("Click ok, then click the window to start");
+        waitForClick();
         addKeyListeners();
         gameLoop();
 
     }
 
+    //Adds all the objects unto screen & fills variables
     @Override
     public void init() {
         setSize(700, 700);
+
         head = new SnakeHead(20, 20, getGCanvas());
-        add(head, 100, 100);
+        scoreLabel = new GLabel("Score: " + score);
+        highLabel = new GLabel("Highscore: " + highscore);
+        bounding = new GRect(500, 500);
+
+        scoreLabel.setFont("Calibri-50");
+        highLabel.setFont("Calibri-50");
+
+        add(head, bounding.getX()+ head.getWidth()*2, bounding.getY() + head.getHeight()*3);
         add(bounding, 20, 20);
-        spawnApple();
+        add(scoreLabel, bounding.getX(), bounding.getY()+bounding.getHeight()+ scoreLabel.getHeight());
+        add(highLabel, scoreLabel.getX(), scoreLabel.getY()+ 50);
     }
 
+    /**
+     * While True loop that runs the game
+     */
     private void gameLoop(){
         while (true) {
-            previousX = head.getX();
-            previousY = head.getY();
-            head.move(moveX, moveY);
             handleCollisions();
+            double previousX = head.getX();
+            double previousY = head.getY();
+            if (previousMoveX == moveX){
+                moveX *= -1;
+            }
+            if (previousMoveY == moveY){
+                moveY *= -1;
+            }
+            head.move(moveX, moveY);
+            previousMoveX = moveX * -1;
+            previousMoveY = moveY * -1;
             bodypcs.add(new SnakeBody(20, 20));
                 add(bodypcs.get(time), previousX, previousY);
                 time +=1;
                 if (time >= segment) {
                     remove(bodypcs.get(time - segment));
                 }
-                pause(150);
+            handleCollisions();
+                pause(speed);
         }
     }
 
 
-    private double getRandom20(){
-        int number = new Random().nextInt(25)*20+20;
+
+
+    /**
+     * Gets a random multiple of 20 from the limit you pass into it
+     * @param limit must be a multiple of 20
+     * @return
+     */
+    private double getRandom20(int limit){
+        int number = new Random().nextInt(limit/20)*20+20;
         return number;
     }
 
-
+    /**
+     * Spawns an apple somewhere on screen, bound by getRandom20.
+     */
     private void spawnApple(){
-        add(new Apple(), getRandom20(), getRandom20());
+
+
+        int random20X = (int) getRandom20((int) bounding.getWidth());
+        int random20Y = (int) getRandom20((int) bounding.getHeight());
+
+        if (!(this.getElementAt(random20X, random20Y) instanceof SnakeBody) && !(this.getElementAt(random20X, random20Y) instanceof SnakeHead)) {
+            add(new Apple(), random20X, random20Y);
+        }
     }
 
+
+    /**
+     * Handles all the collisions with the walls, apple, and SnakeBody parts.
+     */
     private void handleCollisions(){
         GObject obj = null;
-
-        if (head.getX() >= bounding.getX() + bounding.getWidth()){
+        //check right wall
+        if (head.getX() + head.getWidth() > bounding.getX()+ bounding.getWidth()){
             lose();
-        } else if (head.getY() <= bounding.getY()){
+            //check top
+        }else if (head.getY() < bounding.getY()){
             lose();
-        } else if (head.getX() <= bounding.getX()){
+            //check left
+        }else if (head.getX() < bounding.getX()){
             lose();
-        } else if (head.getY() >= bounding.getY() + bounding.getHeight()){
+            //check bottom
+        }else if (head.getY() + head.getHeight() > bounding.getY() + bounding.getHeight()){
             lose();
         }
 
         if(obj == null){
-            obj = this.getElementAt(head.getX() + head.getWidth()/2, head.getY() + head.getHeight()/2);
+
+            obj = this.getElementAt(head.getX()+head.getWidth()/2, head.getY()+ head.getHeight()/2);
         }
 
         if (obj != null){
@@ -116,22 +178,37 @@ public class Snake extends GraphicsProgram {
             } else if (obj instanceof  Apple){
                 remove(obj);
                 segment += 1;
+                score += 1;
+                scoreLabel.setLabel("Score: " + score);
                 spawnApple();
             }
         }
     }
 
+    /**
+     * Handles what happens when you lose
+     */
     private void lose(){
-        Dialog.showMessage("You lose");
-        for (int i = 0; i < segment; i++) {
-            remove(bodypcs.get(i));
+        if (highscore < score){
+            highscore = score;
+            highLabel.setLabel("Highscore: " + highscore);
         }
-        head.setLocation(20, 20);
+        Dialog.showMessage("You lose. Highscore:" + highscore);
         moveX = 20;
         moveY = 0;
-
+        segment = 4;
+        score = 0;
+        previousMoveX = 0;
+        previousMoveY = 0;
+        removeAll();
+        init();
+        run();
     }
 
+    /**
+     * Handles the arrow keys getting pressed
+     * @param ke
+     */
     public void keyPressed(KeyEvent ke){
         switch (ke.getKeyCode()){
             case 38:
@@ -156,6 +233,9 @@ public class Snake extends GraphicsProgram {
                 break;
         }
     }
+
+
+
 
 
     public static void main(String[] args) {

@@ -20,11 +20,16 @@ public class SnakeBody extends GRect {
     public SnakeBody(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
         Color color = new Color(rn.nextInt(255), rn.nextInt(255), rn.nextInt(255));
-        setFillColor(Color.red);
+        setFillColor(Color.green);
         setFilled(true);
     }
 
+    //Adds the number of the position the body is in the chain
     private void addValue(){
         segValue += 1;
+    }
+
+    private int getSeg(){
+        return segValue;
     }
 }
